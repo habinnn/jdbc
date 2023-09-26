@@ -1,7 +1,4 @@
 package org.example;
-
-
-
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
@@ -9,91 +6,96 @@ import java.sql.Statement;
 import java.util.Scanner;
 
 public class board {
-    public static void main(String[] args) {
-        Scanner scan = new Scanner(System.in);
+    static Scanner scan = new Scanner(System.in);
 
-        while(true) {
+    public static void main(String[] args) {
+
+        while (true) {
+            System.out.println("명령어를 입력해주세요 : ");
             String cmd = scan.nextLine();
 
-            if(cmd.equals("list")) {
-                // board db의 article table에서 데이터를 꺼내와 출력
-
-                // 자동임포트 : alt + enter
-                Connection conn = null; // DB 접속하는 객체
-                Statement stmt = null; // SQL 전송하는 객체
-                ResultSet rs = null; // 결과 받아오는 객체
-
-                String url = "jdbc:mysql://localhost:3306/board?serverTimezone=UTC";
-                String user = "root";
-                String pass = "";
-
-
-                try {
-                    // 1. 드라이버 세팅
-                    Class.forName("com.mysql.cj.jdbc.Driver");
-
-                    // 2. Connection 획득
-                    conn = DriverManager.getConnection(url, user, pass);
-
-                    //3. Statement 생성
-                    stmt = conn.createStatement();
-
-//            System.out.println("3번까지 문제 없이 실행");
-
-                    //4. SQL 처리하고 결과 ResultSet에 받아오기
-                    String sql = "SELECT * FROM article";
-                    rs = stmt.executeQuery(sql);
-
-                    while(rs.next()) {
-                        System.out.println(rs.getString("title"));
-                        System.out.println(rs.getString("content")); // 문자열로 리턴
-                        System.out.println(rs.getInt("id")); //
-                        System.out.println("========================");
-                    }
-
-                } catch(Exception e) {
-                    System.out.println("접속 시도중 문제 발생!!");
-                }
-            } else if(cmd.equals("add")) {
-
-                Connection conn = null; // DB 접속하는 객체
-                Statement stmt = null; // SQL 전송하는 객체
-                ResultSet rs = null; // 결과 받아오는 객체
-
-                String url = "jdbc:mysql://localhost:3306/board?serverTimezone=UTC";
-                String user = "root";
-                String pass = "";
-
-                try {
-                    // 1. 드라이버 세팅
-                    Class.forName("com.mysql.cj.jdbc.Driver");
-
-                    // 2. Connection 획득
-                    conn = DriverManager.getConnection(url, user, pass);
-
-                    //3. Statement 생성
-                    stmt = conn.createStatement();
-
-                    System.out.println("제목을 입력해주세요 : ");
-                    String title = scan.nextLine();
-                    System.out.println("내용을 입력해주세요 : ");
-                    String content = scan.nextLine();
-
-                    //4. SQL 처리하고 결과 ResultSet에 받아오기
-                    String sql = "INSERT INTO article SET title = '" + title + "', content = '" + content + "'";
-                    stmt.executeUpdate(sql);
-                    System.out.println("게시물 등록이 완료되었습니다.");
-                    // 조회 결과 있는 거 -> executeQuery(sql);
-                    // 조회 결과 없는 거 -> executeUpdate(sql);
-
-                } catch(Exception e) {
-                    System.out.println("접속 시도중 문제 발생!!");
-                }
-            } else if(cmd.equals("exit")) {
+            if (cmd.equals("add")) {
+                add();
+            } else if (cmd.equals("list")) {
+                list();
+            } else if (cmd.equals("update")) {
+                update();
+            } else if (cmd.equals("exit")) {
                 System.out.println("프로그램 종료.");
                 break;
             }
         }
 
     }
+    static void list() {
+        Statement stmt = null; // SQL 전송하는 객체
+        ResultSet rs = null;
+        try {
+            Connection conn = getConnection();
+            stmt = conn.createStatement();
+            String sql = String.format("SELECT * FROM add_book");
+            rs = stmt.executeQuery(sql);
+
+            while (rs.next()) {
+                int id = rs.getInt("id");
+                String name = rs.getString("name");
+                String address = rs.getString("address");
+                String phone = rs.getString("phone");
+
+                System.out.printf("번호 : %d\n", id);
+                System.out.printf("이름 : %s\n", name);
+                System.out.printf("주소 : %s\n", address);
+                System.out.printf("전화번호 : %s\n", phone);
+                System.out.println("===========================");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+    static void add() {
+        System.out.println("========== 주소록 등록 =========");
+        System.out.println("이름 : ");
+        String name = scan.nextLine();
+        System.out.println("주소 : ");
+        String address = scan.nextLine();
+        System.out.println("전화번호 : ");
+        String phone = scan.nextLine();
+
+        Statement stmt = null; // SQL 전송하는 객체
+        try {
+            // 1. 드라이버 세팅
+            Connection conn = getConnection();
+            //3. Statement 생성
+            stmt = conn.createStatement();
+            String sql = String.format("INSERT INTO add_book SET  `name` = '%s',`address` = '%s',`phone` = '%s'", name, address, phone);
+            stmt.executeUpdate(sql);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+
+    }
+
+    static Connection getConnection() {
+        Connection conn = null; // DB 접속하는 객체
+        String url = "jdbc:mysql://localhost:3306/ad?serverTimezone=UTC";
+        String user = "root";
+        String pass = "";
+        try {
+
+            // 1. 드라이버 세팅
+            Class.forName("com.mysql.cj.jdbc.Driver");
+            // 2. Connection 획득
+            conn = DriverManager.getConnection(url, user, pass);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return conn;
+    }
+
+    static void update(){
+
+    }
+
 }
+
